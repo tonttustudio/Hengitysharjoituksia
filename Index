@@ -3,106 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Infinity hengitys</title>
+<title>Infinity debug</title>
 
 <style>
   body {
     margin: 0;
-    background: #0a0f14;
+    background: black;
     color: white;
-    font-family: sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    height: 100vh;
     padding-top: 20px;
+    font-family: sans-serif;
   }
-
-  h1 {
-    margin-bottom: 10px;
-  }
-
-  #phase {
-    margin-top: 15px;
-    font-size: 1.2rem;
-    opacity: 0.8;
-  }
-
-  .wrapper {
-    width: 90%;
-    max-width: 500px;
-    margin-top: 20px;
-  }
-
   svg {
-    width: 100%;
-    height: auto;
+    width: 90vw;
+    max-width: 400px;
+    border: 1px solid #444;
+    margin-top: 20px;
   }
 </style>
 </head>
 <body>
 
-<h1>Infinity-hengitys</h1>
-<div class="wrapper">
-  <svg viewBox="0 0 300 150">
+<h1>Infinity Debug</h1>
 
-    <!-- Selkeä infinity loop (pieni kahdeksikko) -->
-    <path id="loop"
-      d="
-        M 75 75
-        C 75 30, 20 30, 20 75
-        C 20 120, 75 120, 75 75
-        C 75 30, 130 30, 130 75
-        C 130 120, 185 120, 185 75
-        C 185 30, 240 30, 240 75
-        C 240 120, 185 120, 185 75
-        C 185 30, 130 30, 130 75
-      "
-      fill="none"
-      stroke="rgba(255,255,255,0.25)"
-      stroke-width="8"
-      stroke-linecap="round"
-    />
+<svg viewBox="0 0 300 150">
+  <!-- Kaksi selkeää ympyrää (vasen ja oikea) -->
+  <circle cx="90" cy="75" r="50" stroke="white" stroke-width="3" fill="none"/>
+  <circle cx="210" cy="75" r="50" stroke="white" stroke-width="3" fill="none"/>
 
-    <!-- Pallo -->
-    <circle id="ball" r="10" fill="#4dd0ff" cx="75" cy="75"></circle>
+  <!-- Liikkuva pallo -->
+  <circle id="ball" r="10" fill="cyan" cx="90" cy="75"></circle>
+</svg>
 
-  </svg>
-</div>
-
-<div id="phase">Sisään…</div>
+<p id="status">Animaatio alkaa…</p>
 
 <script>
-  const path = document.getElementById("loop");
-  const ball = document.getElementById("ball");
-  const phase = document.getElementById("phase");
+const ball = document.getElementById("ball");
+const statusEl = document.getElementById("status");
 
-  const length = path.getTotalLength();
-  const cycle = 10000; // 10s kierros
+// Rakenna 200 pisteen rata kahdesta ympyrästä
+let pathPoints = [];
 
-  let start = null;
+// Vasen ympyrä
+for (let i = 0; i < 100; i++) {
+  const angle = (i / 100) * 2 * Math.PI;
+  const x = 90 + 50 * Math.cos(angle);
+  const y = 75 + 50 * Math.sin(angle);
+  pathPoints.push({x, y});
+}
 
-  function animate(t) {
-    if (!start) start = t;
-    let progress = ((t - start) % cycle) / cycle; // 0..1
+// Oikea ympyrä
+for (let i = 0; i < 100; i++) {
+  const angle = (i / 100) * 2 * Math.PI;
+  const x = 210 + 50 * Math.cos(angle);
+  const y = 75 + 50 * Math.sin(angle);
+  pathPoints.push({x, y});
+}
 
-    // Piste radalla
-    const point = path.getPointAtLength(progress * length);
-    ball.setAttribute("cx", point.x);
-    ball.setAttribute("cy", point.y);
+let index = 0;
 
-    // Teksti: 0–0.5 sisään, 0.5–1 ulos
-    if (progress < 0.5) {
-      phase.textContent = "Sisään…";
-    } else {
-      phase.textContent = "Ulos…";
-    }
+function animate() {
+  const point = pathPoints[index];
+  ball.setAttribute("cx", point.x);
+  ball.setAttribute("cy", point.y);
 
-    requestAnimationFrame(animate);
-  }
+  index = (index + 1) % pathPoints.length;
 
   requestAnimationFrame(animate);
+  statusEl.textContent = "Pallo liikkuu " + index;
+}
+
+animate();
 </script>
 
 </body>
