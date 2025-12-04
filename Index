@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Infinity-hengityspallo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #1b2735 0%, #090a0f 60%, #050608 100%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #f5f5f5;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 400px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 16px;
+    }
+
+    .breath-container {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      border-radius: 16px;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.35);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .phase-label {
+      margin-top: 14px;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Infinity-hengitys</h1>
+    <p class="subtitle">Seuraa palloa ja hengitä sen tahdissa.</p>
+
+    <div class="breath-container">
+      <svg viewBox="0 0 250 180">
+        <!-- Infinity-rata -->
+        <path
+          id="loopPath"
+          d="
+            M 75 90
+            C 75 50, 25 50, 25 90
+            C 25 130, 75 130, 75 90
+            S 125 50, 175 90
+            S 225 130, 175 90
+            S 125 50, 75 90
+          "
+          fill="none"
+          stroke="rgba(255,255,255,0.2)"
+          stroke-width="10"
+          stroke-linecap="round"
+        ></path>
+
+        <!-- Pallo (hengityksen rytmi) -->
+        <circle
+          id="ball"
+          cx="75"
+          cy="90"
+          r="10"
+          fill="#4dd0ff"
+        >
+        </circle>
+
+        <!-- Kevyt hehku pallon ympärille -->
+        <circle
+          id="ballGlow"
+          cx="75"
+          cy="90"
+          r="18"
+          fill="rgba(77, 208, 255, 0.25)"
+        ></circle>
+      </svg>
+    </div>
+
+    <div id="phaseLabel" class="phase-label">Sisään…</div>
+    <div class="hint">Sisään kun pallo kulkee vasemman lenkin, ulos oikean lenkin.</div>
+  </div>
+
+  <script>
+    const path = document.getElementById("loopPath");
+    const ball = document.getElementById("ball");
+    const glow = document.getElementById("ballGlow");
+    const phaseLabel = document.getElementById("phaseLabel");
+
+    const totalLength = path.getTotalLength();
+
+    // Koko kierroksen kesto (ms)
+    const cycleDuration = 10000; // 10 s → 5 s sisään, 5 s ulos
+
+    let startTime = null;
+
+    function animate(timestamp) {
+      if (!startTime) startTime = timestamp;
+
+      const elapsed = (timestamp - startTime) % cycleDuration;
+      const progress = elapsed / cycleDuration; // 0…1
+
+      // 0–0.5 = sisäänhengitys (vasen lenkki)
+      // 0.5–1 = uloshengitys (oikea lenkki)
+      const inhale = progress < 0.5;
+      const phaseProgress = inhale ? progress / 0.5 : (progress - 0.5) / 0.5;
+
+      // Pituus radalla
+      const distance = totalLength * progress;
+      const point = path.getPointAtLength(distance);
+
+      ball.setAttribute("cx", point.x);
+      ball.setAttribute("cy", point.y);
+      glow.setAttribute("cx", point.x);
+      glow.setAttribute("cy", point.y);
+
+      // Pallon koko hengityksen mukaan:
+      // sisään: kasvaa → 10 → 15
+      // ulos: pienenee →
