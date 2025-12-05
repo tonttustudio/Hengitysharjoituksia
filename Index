@@ -3,80 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Infinity debug</title>
+<title>Hengityspallo</title>
 
 <style>
   body {
     margin: 0;
-    background: black;
-    color: white;
+    background: #111;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 20px;
+    justify-content: center;
     font-family: sans-serif;
+    color: white;
   }
-  svg {
-    width: 90vw;
-    max-width: 400px;
-    border: 1px solid #444;
+
+  #ball {
+    width: 60px;
+    height: 60px;
+    background: #00e5ff;
+    border-radius: 50%;
+  }
+
+  #info {
     margin-top: 20px;
+    font-size: 20px;
   }
 </style>
+
 </head>
 <body>
 
-<h1>Infinity Debug</h1>
+<h1>Näkyykö pallo nyt?</h1>
 
-<svg viewBox="0 0 300 150">
-  <!-- Kaksi selkeää ympyrää (vasen ja oikea) -->
-  <circle cx="90" cy="75" r="50" stroke="white" stroke-width="3" fill="none"/>
-  <circle cx="210" cy="75" r="50" stroke="white" stroke-width="3" fill="none"/>
+<div id="ball"></div>
 
-  <!-- Liikkuva pallo -->
-  <circle id="ball" r="10" fill="cyan" cx="90" cy="75"></circle>
-</svg>
-
-<p id="status">Animaatio alkaa…</p>
-
-<script>
-const ball = document.getElementById("ball");
-const statusEl = document.getElementById("status");
-
-// Rakenna 200 pisteen rata kahdesta ympyrästä
-let pathPoints = [];
-
-// Vasen ympyrä
-for (let i = 0; i < 100; i++) {
-  const angle = (i / 100) * 2 * Math.PI;
-  const x = 90 + 50 * Math.cos(angle);
-  const y = 75 + 50 * Math.sin(angle);
-  pathPoints.push({x, y});
-}
-
-// Oikea ympyrä
-for (let i = 0; i < 100; i++) {
-  const angle = (i / 100) * 2 * Math.PI;
-  const x = 210 + 50 * Math.cos(angle);
-  const y = 75 + 50 * Math.sin(angle);
-  pathPoints.push({x, y});
-}
-
-let index = 0;
-
-function animate() {
-  const point = pathPoints[index];
-  ball.setAttribute("cx", point.x);
-  ball.setAttribute("cy", point.y);
-
-  index = (index + 1) % pathPoints.length;
-
-  requestAnimationFrame(animate);
-  statusEl.textContent = "Pallo liikkuu " + index;
-}
-
-animate();
-</script>
+<div id="info">Tämän pallon pitäisi näkyä</div>
 
 </body>
 </html>
