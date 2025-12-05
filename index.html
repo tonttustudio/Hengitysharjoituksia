@@ -1,51 +1,55 @@
 <body>
 
-<h1>Hengitetään yhdessä</h1>
+<h1 id="title">Hengitetään rauhassa</h1>
 
 <div id="ball"></div>
 
-<div id="text">Sisään…</div>
+<div id="phase">Sisään…</div>
 
 <style>
-  #ball {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: #00e5ff;
-    margin: 40px auto;
-    transition: all 2s ease-out;
+  body {
+    margin: 0;
+    background: #000;
+    color: #fff;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+    padding-top: 10vh;
+    text-align: center;
   }
 
-  #text {
-    font-size: 22px;
-    margin-top: 20px;
-    text-align: center;
+  #title {
+    font-size: 8vw;
+    margin-bottom: 8vh;
+  }
+
+  #ball {
+    width: 45vw;
+    height: 45vw;
+    max-width: 260px;
+    max-height: 260px;
+    min-width: 140px;
+    min-height: 140px;
+    background: #00eaff;
+    border-radius: 50%;
+    transition: transform 3s ease-in-out;
+  }
+
+  #phase {
+    font-size: 7vw;
+    margin-top: 6vh;
+    opacity: 0.8;
   }
 </style>
 
 <script>
-let phase = "in"; // "in" or "out"
+let breathingIn = true;
 
 function animateBreathing() {
   const ball = document.getElementById("ball");
-  const text = document.getElementById("text");
+  const phaseText = document.getElementById("phase");
 
-  if (phase === "in") {
-    text.textContent = "Sisään…";
-    ball.style.transform = "scale(1.4)";
-    phase = "out";
-
-    setTimeout(animateBreathing, 4000); // 4 sek sisään
-  } else {
-    text.textContent = "Ulos…";
-    ball.style.transform = "scale(1)";
-    phase = "in";
-
-    setTimeout(animateBreathing, 6000); // 6 sek ulos
-  }
-}
-
-animateBreathing();
-</script>
-
-</body>
+  if (breathingIn)
