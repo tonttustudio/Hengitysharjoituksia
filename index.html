@@ -1,129 +1,267 @@
-<body>
-
-<h1 id="title">Hengitetään rauhassa</h1>
-
-<div id="container">
-  <svg id="pathsvg" viewBox="0 0 400 200">
-    <path id="inf" d="
-      M 100 100
-      C 50 30,   0 30,   50 100
-      C 100 170, 200 170, 200 100
-      C 200 30,  300 30, 350 100
-      C 400 170, 300 170, 200 100
-      C 100 170, 50 170, 100 100
-    " stroke="rgba(255,255,255,0.35)" stroke-width="14" fill="none" stroke-linecap="round"/>
-  </svg>
-  
-  <div id="ball"></div>
-</div>
-
-<div id="phase">Sisään…</div>
-
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hengitysharjoituksia</title>
 
 <style>
   body {
     margin: 0;
-    background: #050505;
+    background: #090909;
     color: white;
     font-family: sans-serif;
-    height: 100vh;
+    text-align: center;
+  }
+
+  h1 {
+    margin-top: 6vh;
+    font-size: 8vw;
+  }
+
+  #buttons {
     display: flex;
-    flex-direction: column;
     justify-content: center;
-    align-items: center;
+    gap: 8px;
+    margin-top: 5vh;
   }
 
-  #title {
-    font-size: 9vw;
-    margin-bottom: 7vh;
+  .btn {
+    padding: 8px 15px;
+    border-radius: 10px;
+    background: #222;
+    font-size: 4vw;
+    border: solid 2px #444;
   }
 
-  #container {
-    position: relative;
-    width: 90vw;
+  .active {
+    background: #00c8ff;
+    color: black;
+    border-color: white;
+    font-weight: bold;
+  }
+
+  svg {
+    width: 88vw;
     max-width: 450px;
-  }
-
-  #pathsvg {
-    width: 100%;
     height: auto;
-  }
-
-  #ball {
-    position: absolute;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: #00f6ff;
-    transform: translate(-50%,-50%);
+    margin-top: 7vh;
   }
 
   #phase {
-    margin-top: 7vh;
+    margin-top: 6vh;
     font-size: 7vw;
     opacity: 0.85;
   }
 </style>
+</head>
+<body>
+
+<h1>Hengitetään rauhassa</h1>
+
+<div id="buttons">
+  <div class="btn active" id="btnInfinity">∞ Infinity</div>
+  <div class="btn" id="btnBox">□ Box</div>
+  <div class="btn" id="btnSlow">○ Slow</div>
+</div>
+
+<svg viewBox="0 0 400 200">
+
+  <!-- Infinity -->
+  <path id="pathInfinity" d="
+    M 100 100
+    C 50 30,  0 30,   50 100
+    C 100 170, 200 170, 200 100
+    C 200 30,  300 30, 350 100
+    C 400 170, 300 170, 200 100
+    C 120 170, 50 170, 100 100
+  " stroke="rgba(255,255,255,0.32)" stroke-width="12" fill="none" stroke-linecap="round"/>
+
+  <!-- Box -->
+  <path id="pathBox" d="
+    M 120 60 L 280 60 L 280 140 L 120 140 Z
+  " stroke="rgba(200,200,200,0.35)" stroke-width="12" fill="none" stroke-linecap="round" style="display:none"/>
+
+  <!-- Slow round -->
+  <path id="pathSlow" d="
+    M 200 50
+    C 270 50, 350 100, 200 150
+    C 50 100, 130 50, 200 50
+  " stroke="rgba(150,150,255,0.35)" stroke-width="12" fill="none" stroke-linecap="round" style="display:none"/>
+
+  <!-- Ball -->
+  <circle id="ball" r="10" fill="#29e6ff"></circle>
+</svg>
+
+<div id="phase"></div>
 
 
 <script>
-const path = document.getElementById("inf");
+const paths = {
+  infinity: document.getElementById("pathInfinity"),
+  box: document.getElementById("pathBox"),
+  slow: document.getElementById("pathSlow")
+};
+
 const ball = document.getElementById("ball");
 const phaseText = document.getElementById("phase");
 
-let breathingIn = true;
-let progress = 0;
+// Durations
+let durations = {
+  infinity: {in: 4000, out: 6000},
+  box: {hold:1000, perSide: 4000}, // 4s each side
+  slow: {in:7000, out:8000}
+};
 
-let inSpeed = 4000;  // 4s
-let outSpeed = 6000; // 6s
+let currentMode = "infinity";
 
-let totalLength = path.getTotalLength();
 
-// ANIMAATIO
-function animate() {
-  let duration = breathingIn ? inSpeed : outSpeed;
-  let moveStart = performance.now();
+function activateMode(mode) {
+  currentMode = mode;
 
-  function frame(t) {
-    let elapsed = t - moveStart;
-    let phase = elapsed / duration;
+  // show right path
+  paths.infinity.style.display = mode === "infinity" ? "" : "none";
+  paths.box.style.display = mode === "box" ? "" : "none";
+  paths.slow.style.display = mode === "slow" ? "" : "none";
 
-    if (phase > 1) phase = 1;
+  // buttons
+  document.querySelectorAll(".btn").forEach(btn => btn.classList.remove("active"));
+  document.getElementById("btn" + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add("active");
 
-    let eased = breathingIn ? easeInOut(phase) : easeInOutReverse(phase);
+  startAnimation();
+}
 
-    let point = path.getPointAtLength(eased * totalLength);
 
-    // siirretään pallon paikka SVG-pisteeseen
-    ball.style.left = point.x + "px";
-    ball.style.top = point.y + "px";
+function startAnimation() {
+  cancelAnimationFrame(loopHandle);
 
-    if (phase < 1) {
-      requestAnimationFrame(frame);
-    } else {
-      breathingIn = !breathingIn;
-      phaseText.textContent = breathingIn ? "Sisään…" : "Ulos…";
-      animate();
+  if (currentMode === "infinity") startInfinity();
+  if (currentMode === "box") startBox();
+  if (currentMode === "slow") startSlow();
+}
+
+
+/* === Infinity === */
+let loopHandle;
+function startInfinity() {
+  phaseText.textContent = "Sisään…";
+  let breathingIn = true;
+  let totalLength = paths.infinity.getTotalLength();
+
+  function animateCycle() {
+    let duration = breathingIn ? durations.infinity.in : durations.infinity.out;
+    let startTime = performance.now();
+
+    function frame(now) {
+      let progress = (now - startTime) / duration;
+      if (progress > 1) progress = 1;
+
+      let eased = 0.5 - Math.cos(progress * Math.PI) / 2;
+      let pos = paths.infinity.getPointAtLength(eased * totalLength);
+
+      ball.setAttribute("cx", pos.x);
+      ball.setAttribute("cy", pos.y);
+
+      if (progress < 1) {
+        loopHandle = requestAnimationFrame(frame);
+      } else {
+        breathingIn = !breathingIn;
+        phaseText.textContent = breathingIn ? "Sisään…" : "Ulos…";
+        animateCycle();
+      }
     }
+
+    frame(performance.now());
   }
 
-  requestAnimationFrame(frame);
+  animateCycle();
 }
 
 
-// Pehmeä kiihtyminen ja hidastuminen
-function easeInOut(x) {
-  return 0.5 - Math.cos(x * Math.PI) / 2;
+/* === Box breathing === */
+function startBox() {
+  let p = paths.box;
+  let length = p.getTotalLength();
+  let sideLength = length / 4;
+  let index = 0;
+
+  function advance() {
+    let t = durations.box.perSide;
+    let start = performance.now();
+
+    phaseText.textContent = ["Sisään", "Pidätä", "Ulos", "Pidätä"][index] + "…";
+
+    function frame(now) {
+      let progress = (now - start) / t;
+      if (progress > 1) progress = 1;
+
+      let eased = progress;
+      let pos = p.getPointAtLength(sideLength * (index + eased));
+
+      ball.setAttribute("cx", pos.x);
+      ball.setAttribute("cy", pos.y);
+
+      if (progress < 1) {
+        loopHandle = requestAnimationFrame(frame);
+      } else {
+        index = (index + 1) % 4;
+        setTimeout(advance, 1000);
+      }
+    }
+
+    frame(performance.now());
+  }
+
+  advance();
 }
 
-function easeInOutReverse(x) {
-  return easeInOut(x);
+
+/* === Slow === */
+function startSlow() {
+  let p = paths.slow;
+  let breathingIn = true;
+
+  function cycle() {
+    let dur = breathingIn ? durations.slow.in : durations.slow.out;
+    phaseText.textContent = breathingIn ? "Sisään…" : "Ulos…";
+
+    let start = performance.now();
+    let length = p.getTotalLength();
+
+    function frame(now) {
+      let pr = (now - start) / dur;
+      if (pr > 1) pr = 1;
+
+      let eased = 0.5 - Math.cos(pr * Math.PI) / 2;
+      let pos = p.getPointAtLength(eased * length);
+
+      ball.setAttribute("cx", pos.x);
+      ball.setAttribute("cy", pos.y);
+
+      if (pr < 1) {
+        loopHandle = requestAnimationFrame(frame);
+      } else {
+        breathingIn = !breathingIn;
+        cycle();
+      }
+    }
+
+    frame(performance.now());
+  }
+
+  cycle();
 }
 
 
-// Alku
-phaseText.textContent = "Sisään…";
-animate();
+// button events
+document.getElementById("btnInfinity").onclick = () => activateMode("infinity");
+document.getElementById("btnBox").onclick = () => activateMode("box");
+document.getElementById("btnSlow").onclick = () => activateMode("slow");
+
+// start app
+startInfinity();
+
 </script>
 
 </body>
+</html>
