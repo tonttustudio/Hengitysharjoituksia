@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hengityspallo</title>
+<body>
+
+<h1 id="title">Hengitä rauhassa</h1>
+
+<div id="ball"></div>
+<div id="phase"></div>
 
 <style>
   body {
@@ -18,61 +18,70 @@
     align-items: center;
   }
 
-  h1 {
-    margin-bottom: 50px;
+  #title {
     font-size: 9vw;
+    margin-bottom: 8vh;
     text-align: center;
   }
 
   #ball {
     width: 45vw;
     height: 45vw;
-    max-width: 300px;
-    max-height: 300px;
+    max-width: 280px;
+    max-height: 280px;
     min-width: 160px;
     min-height: 160px;
     border-radius: 50%;
-    background: radial-gradient(circle, #00f6ff 0%, #00b7d6 100%);
-    transition: transform 3s ease-in-out;
+    background: radial-gradient(circle, #00f6ff 0%, #009abb 100%);
+    transform: scale(1);
   }
 
-  #text {
-    margin-top: 8vh;
+  #phase {
     font-size: 7vw;
+    margin-top: 8vh;
     opacity: 0.85;
   }
 </style>
 
-</head>
-<body>
-
-<h1>Hengitä rauhassa</h1>
-
-<div id="ball"></div>
-<div id="text"></div>
-
 <script>
-let breathingIn = true;
+const ball = document.getElementById("ball");
+const phase = document.getElementById("phase");
 
-function breathCycle() {
-  const ball = document.getElementById("ball");
-  const text = document.getElementById("text");
+function breatheIn() {
+  phase.textContent = "Sisään…";
+  ball.animate(
+    [
+      { transform: "scale(1)" },
+      { transform: "scale(1.4)" }
+    ],
+    {
+      duration: 4000,
+      fill: "forwards",
+      easing: "ease-in-out"
+    }
+  );
 
-  if (breathingIn) {
-    ball.style.transform = "scale(1.4)";
-    text.textContent = "Sisään...";
-    breathingIn = false;
-    setTimeout(breathCycle, 4000);
-  } else {
-    ball.style.transform = "scale(1)";
-    text.textContent = "Ulos...";
-    breathingIn = true;
-    setTimeout(breathCycle, 6000);
-  }
+  setTimeout(breatheOut, 4000);
 }
 
-breathCycle();
+function breatheOut() {
+  phase.textContent = "Ulos…";
+  ball.animate(
+    [
+      { transform: "scale(1.4)" },
+      { transform: "scale(1)" }
+    ],
+    {
+      duration: 6000,
+      fill: "forwards",
+      easing: "ease-in-out"
+    }
+  );
+
+  setTimeout(breatheIn, 6000);
+}
+
+breatheIn();
 </script>
 
 </body>
-</html>
