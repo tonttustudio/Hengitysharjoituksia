@@ -1,55 +1,78 @@
-<body>
-
-<h1 id="title">Hengitetään rauhassa</h1>
-
-<div id="ball"></div>
-
-<div id="phase">Sisään…</div>
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hengityspallo</title>
 
 <style>
   body {
     margin: 0;
-    background: #000;
-    color: #fff;
+    background: #0a0d10;
     font-family: sans-serif;
+    color: #fff;
+    height: 100vh;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    justify-content: flex-start;
-    height: 100vh;
-    padding-top: 10vh;
-    text-align: center;
   }
 
-  #title {
-    font-size: 8vw;
-    margin-bottom: 8vh;
+  h1 {
+    margin-bottom: 50px;
+    font-size: 9vw;
+    text-align: center;
   }
 
   #ball {
     width: 45vw;
     height: 45vw;
-    max-width: 260px;
-    max-height: 260px;
-    min-width: 140px;
-    min-height: 140px;
-    background: #00eaff;
+    max-width: 300px;
+    max-height: 300px;
+    min-width: 160px;
+    min-height: 160px;
     border-radius: 50%;
+    background: radial-gradient(circle, #00f6ff 0%, #00b7d6 100%);
     transition: transform 3s ease-in-out;
   }
 
-  #phase {
+  #text {
+    margin-top: 8vh;
     font-size: 7vw;
-    margin-top: 6vh;
-    opacity: 0.8;
+    opacity: 0.85;
   }
 </style>
+
+</head>
+<body>
+
+<h1>Hengitä rauhassa</h1>
+
+<div id="ball"></div>
+<div id="text"></div>
 
 <script>
 let breathingIn = true;
 
-function animateBreathing() {
+function breathCycle() {
   const ball = document.getElementById("ball");
-  const phaseText = document.getElementById("phase");
+  const text = document.getElementById("text");
 
-  if (breathingIn)
+  if (breathingIn) {
+    ball.style.transform = "scale(1.4)";
+    text.textContent = "Sisään...";
+    breathingIn = false;
+    setTimeout(breathCycle, 4000);
+  } else {
+    ball.style.transform = "scale(1)";
+    text.textContent = "Ulos...";
+    breathingIn = true;
+    setTimeout(breathCycle, 6000);
+  }
+}
+
+breathCycle();
+</script>
+
+</body>
+</html>
