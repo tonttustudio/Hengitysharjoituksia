@@ -1,16 +1,31 @@
 <body>
 
-<h1 id="title">Hengitä rauhassa</h1>
+<h1 id="title">Hengitetään rauhassa</h1>
 
-<div id="ball"></div>
-<div id="phase"></div>
+<div id="container">
+  <svg id="pathsvg" viewBox="0 0 400 200">
+    <path id="inf" d="
+      M 100 100
+      C 50 30,   0 30,   50 100
+      C 100 170, 200 170, 200 100
+      C 200 30,  300 30, 350 100
+      C 400 170, 300 170, 200 100
+      C 100 170, 50 170, 100 100
+    " stroke="rgba(255,255,255,0.35)" stroke-width="14" fill="none" stroke-linecap="round"/>
+  </svg>
+  
+  <div id="ball"></div>
+</div>
+
+<div id="phase">Sisään…</div>
+
 
 <style>
   body {
     margin: 0;
-    background: #0a0d10;
+    background: #050505;
+    color: white;
     font-family: sans-serif;
-    color: #fff;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -20,68 +35,95 @@
 
   #title {
     font-size: 9vw;
-    margin-bottom: 8vh;
-    text-align: center;
+    margin-bottom: 7vh;
+  }
+
+  #container {
+    position: relative;
+    width: 90vw;
+    max-width: 450px;
+  }
+
+  #pathsvg {
+    width: 100%;
+    height: auto;
   }
 
   #ball {
-    width: 45vw;
-    height: 45vw;
-    max-width: 280px;
-    max-height: 280px;
-    min-width: 160px;
-    min-height: 160px;
+    position: absolute;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    background: radial-gradient(circle, #00f6ff 0%, #009abb 100%);
-    transform: scale(1);
+    background: #00f6ff;
+    transform: translate(-50%,-50%);
   }
 
   #phase {
+    margin-top: 7vh;
     font-size: 7vw;
-    margin-top: 8vh;
     opacity: 0.85;
   }
 </style>
 
+
 <script>
+const path = document.getElementById("inf");
 const ball = document.getElementById("ball");
-const phase = document.getElementById("phase");
+const phaseText = document.getElementById("phase");
 
-function breatheIn() {
-  phase.textContent = "Sisään…";
-  ball.animate(
-    [
-      { transform: "scale(1)" },
-      { transform: "scale(1.4)" }
-    ],
-    {
-      duration: 4000,
-      fill: "forwards",
-      easing: "ease-in-out"
+let breathingIn = true;
+let progress = 0;
+
+let inSpeed = 4000;  // 4s
+let outSpeed = 6000; // 6s
+
+let totalLength = path.getTotalLength();
+
+// ANIMAATIO
+function animate() {
+  let duration = breathingIn ? inSpeed : outSpeed;
+  let moveStart = performance.now();
+
+  function frame(t) {
+    let elapsed = t - moveStart;
+    let phase = elapsed / duration;
+
+    if (phase > 1) phase = 1;
+
+    let eased = breathingIn ? easeInOut(phase) : easeInOutReverse(phase);
+
+    let point = path.getPointAtLength(eased * totalLength);
+
+    // siirretään pallon paikka SVG-pisteeseen
+    ball.style.left = point.x + "px";
+    ball.style.top = point.y + "px";
+
+    if (phase < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      breathingIn = !breathingIn;
+      phaseText.textContent = breathingIn ? "Sisään…" : "Ulos…";
+      animate();
     }
-  );
+  }
 
-  setTimeout(breatheOut, 4000);
+  requestAnimationFrame(frame);
 }
 
-function breatheOut() {
-  phase.textContent = "Ulos…";
-  ball.animate(
-    [
-      { transform: "scale(1.4)" },
-      { transform: "scale(1)" }
-    ],
-    {
-      duration: 6000,
-      fill: "forwards",
-      easing: "ease-in-out"
-    }
-  );
 
-  setTimeout(breatheIn, 6000);
+// Pehmeä kiihtyminen ja hidastuminen
+function easeInOut(x) {
+  return 0.5 - Math.cos(x * Math.PI) / 2;
 }
 
-breatheIn();
+function easeInOutReverse(x) {
+  return easeInOut(x);
+}
+
+
+// Alku
+phaseText.textContent = "Sisään…";
+animate();
 </script>
 
 </body>
