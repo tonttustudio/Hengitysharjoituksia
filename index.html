@@ -1,44 +1,51 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hengityspallo</title>
-
-<style>
-  body {
-    margin: 0;
-    background: #111;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-family: sans-serif;
-    color: white;
-  }
-
-  #ball {
-    width: 60px;
-    height: 60px;
-    background: #00e5ff;
-    border-radius: 50%;
-  }
-
-  #info {
-    margin-top: 20px;
-    font-size: 20px;
-  }
-</style>
-
-</head>
 <body>
 
-<h1>Näkyykö pallo nyt?</h1>
+<h1>Hengitetään yhdessä</h1>
 
 <div id="ball"></div>
 
-<div id="info">Tämän pallon pitäisi näkyä</div>
+<div id="text">Sisään…</div>
+
+<style>
+  #ball {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #00e5ff;
+    margin: 40px auto;
+    transition: all 2s ease-out;
+  }
+
+  #text {
+    font-size: 22px;
+    margin-top: 20px;
+    text-align: center;
+  }
+</style>
+
+<script>
+let phase = "in"; // "in" or "out"
+
+function animateBreathing() {
+  const ball = document.getElementById("ball");
+  const text = document.getElementById("text");
+
+  if (phase === "in") {
+    text.textContent = "Sisään…";
+    ball.style.transform = "scale(1.4)";
+    phase = "out";
+
+    setTimeout(animateBreathing, 4000); // 4 sek sisään
+  } else {
+    text.textContent = "Ulos…";
+    ball.style.transform = "scale(1)";
+    phase = "in";
+
+    setTimeout(animateBreathing, 6000); // 6 sek ulos
+  }
+}
+
+animateBreathing();
+</script>
 
 </body>
-</html>
